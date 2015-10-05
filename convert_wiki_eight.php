@@ -1,17 +1,14 @@
 <html>
     <body>
         <?php
-
         function get_nth($string, $index) {
             $char_val = substr($string, $index - 1, 1);
             if ($char_val == '\'') {
                 return '\'';
             }
         }
-
         function process_player($player, $player_aka) {
             $ret_val;
-
             $search_val = strpos($player_aka, $player);
             echo $player_val;
             if ($search_val == FALSE) {
@@ -19,16 +16,27 @@
                 $ret_val = 'ERROR';
                 return $ret_val;
             } else {
-                echo "Player: " . $player . " found.<br>";
-                $char_check = get_nth($player_aka, $search_val);
-                $ret_val = $player;
+                $char_check = substr($player_aka, $search_val-1, 1);
+				echo $search_val;
+				echo $char_check;
                 if ($char_check == '\'') {
+					echo "Player: " . $player . " found.<br>";
+					$ret_val = $player;
                     $flag_search_val = strpos($player_aka, "{{", $search_val);
                     $flag = substr($player_aka, $flag_search_val + 7);
                     $flag = substr($flag, 0, 2);
                     echo $flag . "<br>";
                     $ret_val = $ret_val . ',' . $flag;
-                }
+                } else {
+					$reverse_player_aka = strrev($player_aka);
+					$player_aka_len = strlen($player_aka);
+					$name_search_start = $player_aka_len - $search_val;
+					$name_search_val = strpos($reverse_player_aka, "{{", $name_search_start);
+					$name_reverse = substr($reverse_player_aka, $name_search_val, 30);
+					echo "player name should be: ".$name_reverse;
+					$flag = substr($flag, 0, 2);
+					$ret_val = $ret_val . ',' . $flag;
+				}
             }
             $player = str_replace(' ', '_', $player);
             $player_info = file_get_contents('http://wiki.teamliquid.net/smash/api.php?action=query&titles='
@@ -79,9 +87,7 @@
             //$ret_val = substr($ret_val, $start_index-1);
             return $ret_val;
         }
-
         $player_aka = file_get_contents('http://wiki.teamliquid.net/smash/api.php?action=query&titles=Liquipedia:Players_AKA&export&format=json');
-
         $first_player = $_POST["first"];
         $second_player = $_POST["second"];
         $third_player = $_POST["third"];
@@ -90,7 +96,6 @@
         $sixth_player = $_POST["fifth_2"];
         $seventh_player = $_POST["seventh_1"];
         $eigth_player = $_POST["seventh_2"];
-
         $first_process = process_player($first_player, $player_aka);
         $second_process = process_player($second_player, $player_aka);
         $third_process = process_player($third_player, $player_aka);
@@ -101,7 +106,6 @@
         $eigth_process = process_player($eigth_player, $player_aka);
         
         echo $first_process.'<br>'.get_player($first_process).'<br>';
-
         echo "{{prize pool start|localcurrency=gbp|points=pcnt|maxheads=1}}
                 {{prize pool slot|place=1|usdprize=TBA|localprize=TBA|points=TBA|".get_player($first_process)." |flag1=".get_flag($first_process)." |heads1=".get_head($first_process)." |team1=}}
                 {{prize pool slot|place=2|usdprize=TBA|localprize=TBA|points=TBA|".get_player($second_process)." |flag1=".get_flag($second_process)." |heads1=".get_head($second_process)." |team1=}}
